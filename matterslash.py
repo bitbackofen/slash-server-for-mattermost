@@ -72,10 +72,10 @@ class PostHandler(BaseHTTPRequestHandler):
 
         responsetext = ''
 
-        # Triggering the token is possibly more failure-resistant:
-        # if MattermostRequest.token == 'token1':
+        # Triggering the token is possibly more failure-resistant and secure:
+        # if MattermostRequest.token == '<your token from Mattermost slash integration>':
         #    responsetext = do_some_thing(MattermostRequest.text, MattermostRequest.user_name)
-        # elif MattermostRequest.token == 'token2':
+        # elif MattermostRequest.token == '<another token from Mattermost slash integration>':
         #    responsetext = do_some_other_thing(MattermostRequest.text, MattermostRequest.user_name)
         # Here we trigger the command
         if MattermostRequest.command[0] == u'/weather':
@@ -105,7 +105,7 @@ def getweather(city):
 
     # Get your own API key from http://openweathermap.org/api
     # You can also change the language setting here:
-    owm = pyowm.OWM(API_key='skjdjf98423322fjwesjfwefj898jklf', language='en')
+    owm = pyowm.OWM(API_key='<insert your api key>', language='en')
     observation = owm.weather_at_place(searchstring)
     w = observation.get_weather()
 
