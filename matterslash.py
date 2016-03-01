@@ -17,8 +17,7 @@ import json
 # This is used for /weather command
 import pyowm
 
-# The token seems not to be used, as of Mattermost 2.0
-MATTERMOST_TOKEN = 'jlaskjDd983zurfhnjkfhz878h'
+# Define server address and port, use localhost if you are running this on your Mattermost server.
 HOSTNAME = 'localhost'
 PORT = 8088
 
@@ -26,19 +25,21 @@ PORT = 8088
 _u = lambda t: t.decode('UTF-8', 'replace') if isinstance(t, str) else t
 
 
-class MattermostRequest:
+class MattermostRequest(object):
     """
     This is what we get from Mattermost
     """
-    response_url = ''
-    text = ''
-    token = ''
-    channel_id = ''
-    team_id = ''
-    command = ''
-    team_domain = ''
-    user_name = ''
-    channel_name = ''
+    def __init__(self, response_url=None, text=None, token=None, channel_id=None, team_id=None, command=None,
+                 team_domain=None, user_name=None, channel_name=None):
+        self.response_url = response_url
+        self.text = text
+        self.token = token
+        self.channel_id = channel_id
+        self.team_id = team_id
+        self.command = command
+        self.team_domain = team_domain
+        self.user_name = user_name
+        self.channel_name = channel_name
 
 
 class PostHandler(BaseHTTPRequestHandler):
@@ -71,6 +72,12 @@ class PostHandler(BaseHTTPRequestHandler):
 
         responsetext = ''
 
+        # Triggering the token is possibly more failure-resistant:
+        # if MattermostRequest.token = 'token1':
+        #    do_some_thing()
+        # elif MattermostRequest.token = 'token2':
+        #    do_some_other_thing()
+        # Here we trigger the command
         if MattermostRequest.command[0] == u'/weather':
             responsetext = getweather(MattermostRequest.text)
         elif MattermostRequest.command[0] == u'/othercommand':
@@ -87,10 +94,6 @@ class PostHandler(BaseHTTPRequestHandler):
             self.send_header("Content-type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps(data))
-            # {
-            # "response_type": "in_channel",
-            # "text": "This is some response text."
-            # }
         return
 
 
@@ -107,15 +110,16 @@ def getweather(city):
     w = observation.get_weather()
 
     city = _u(''.join(city))
-    response = '#### You requested the weather in ' + city + ':\n\n'
-    response = response + '| Parameter | Value |\n' + \
-               '| :---- | :---- |\n'
-    response = response + '| Temperature : | ' + str(w.get_temperature('celsius')['temp']) + u"° C |\n"
-    response = response + '| Status : | ' + w.get_detailed_status() + " |\n"
-    response = response + u'| Clouds: | ' + str(w.get_clouds()) + "% |\n"
-    response = response + u'| Wind speed: | ' + str(w.get_wind()['speed']) + " |\n"
-    response = response + '| Wind direction: | ' + str(w.get_wind()['deg']) + u"° |\n"
-    response = response + '| Air pressure: | ' + str(w.get_pressure()['press']) + " hPa|\n"
+    # Build the response as table...
+    response = u'#### You requested the weather in ' + city + ':\n\n'
+    response += u'| Parameter | Value |\n' + \
+               u'| :---- | :---- |\n'
+    response += u'| Temperature : | ' + str(w.get_temperature('celsius')['temp']) + u"° C |\n"
+    response += u'| Status : | ' + w.get_detailed_status() + u" |\n"
+    response += u'| Clouds: | ' + str(w.get_clouds()) + u"% |\n"
+    response += u'| Wind speed: | ' + str(w.get_wind()['speed']) + u" |\n"
+    response += u'| Wind direction: | ' + str(w.get_wind()['deg']) + u"° |\n"
+    response += u'| Air pressure: | ' + str(w.get_pressure()['press']) + u" hPa|\n"
     return response
 
 
