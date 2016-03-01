@@ -74,9 +74,9 @@ class PostHandler(BaseHTTPRequestHandler):
 
         # Triggering the token is possibly more failure-resistant:
         # if MattermostRequest.token == 'token1':
-        #    do_some_thing()
+        #    responsetext = do_some_thing(MattermostRequest.text, MattermostRequest.user_name)
         # elif MattermostRequest.token == 'token2':
-        #    do_some_other_thing()
+        #    responsetext = do_some_other_thing(MattermostRequest.text, MattermostRequest.user_name)
         # Here we trigger the command
         if MattermostRequest.command[0] == u'/weather':
             responsetext = getweather(MattermostRequest.text)
